@@ -1,0 +1,44 @@
+<!--/* Thymeleaf templating engine, Each token will be replaced by their respective titles in the resulting page. */-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="#{Home.Title}"></title>
+    <link rel="icon" href="#" th:href="@{/img/favicon.ico}" type="image/x-icon"/>
+
+</head>
+<body>
+<div layout:fragment="breadcrumb">
+    <h1>Repository:</h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+    </ol>
+</div>
+<div layout:fragment="content">
+    <!-- /.box -->
+    <!-- general form elements -->
+    <div th:if="${message != null}" class="alert alert-warning alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-warning"></i> Alert!</h4>
+        <p th:text="${message}"></p>
+    </div>
+
+    <div th:if="${message_info != null}" class="alert alert-info alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-warning"></i> Info!</h4>
+        <p th:text="${message_info}"></p>
+    </div>
+
+    <div th:if="${message_error != null}" class="alert alert-warning alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-warning"></i> Error!</h4>
+        <p th:text="${message_error}"></p>
+    </div>
+
+
+
+</div>
+</body>
+</html>

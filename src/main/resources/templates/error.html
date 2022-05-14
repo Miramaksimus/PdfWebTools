@@ -1,0 +1,30 @@
+<!--/* Thymeleaf templating engine, Each token will be replaced by their respective titles in the resulting page. */-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" lang="en">
+<head>
+    <title th:text="#{Error.Title}"></title>
+</head>
+<body>
+<div layout:fragment="breadcrumb">
+    <h1 th:text="#{Error.SubTitle}"></h1>
+    <ol class="breadcrumb">
+        <li><a th:href="@{/}"><i class="fa fa-dashboard"></i> <span th:text="#{Home.Title}"></span></a></li>
+        <li class="active" th:text="#{Error.Message}"></li>
+    </ol>
+</div>
+<div layout:fragment="content">
+    <div class="error-page">
+        <!--/*@thymesVar id="status" type=""*/-->
+        <h2 class="headline text-yellow" th:text="${status}"></h2>
+        <div class="error-content">
+            <h3><i class="fa fa-warning text-yellow"></i> <span th:text="#{Error.DontWorry}"></span></h3>
+            <!--/*@thymesVar id="message" type=""*/-->
+            <p th:text="${message}"></p>
+            <p th:text="#{Error.Body}">
+
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
