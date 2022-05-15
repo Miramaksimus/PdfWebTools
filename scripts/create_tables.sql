@@ -60,6 +60,61 @@ ALTER TABLE user_roles
     ADD CONSTRAINT role_fk FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE;
 
 
+CREATE TABLE folder (
+    id SERIAL NOT NULL,
+    name varchar(50) NOT NULL,
+    parent_folder bigint,
+    user_id bigint NOT NULL,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE folder
+    ADD CONSTRAINT folder_parent_folder_fk FOREIGN KEY (parent_folder) REFERENCES folder (id) ON DELETE CASCADE;
+ALTER TABLE  folder
+    ADD CONSTRAINT unq_parent_user_name UNIQUE (name, parent_folder, user_id);
+
+CREATE TABLE document (
+    id SERIAL NOT NULL,
+    title varchar(200) NOT NULL,
+    mime_type varchar(50) NOT NULL,
+    date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ecmid bigint NOT NULL,
+    folder_id bigint NOT NULL,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE document
+    ADD CONSTRAINT document_parent_folder_fk FOREIGN KEY (folder_id) REFERENCES folder (id) ON DELETE CASCADE;
+ALTER TABLE document
+    ADD CONSTRAINT unq_title_mime_in_folder UNIQUE (title, mime_type, folder_id);
+
+CREATE TABLE barcode (
+    id SERIAL NOT NULL,
+    text varchar(500) NOT NULL,
+    document_id bigint NOT NULL,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE barcode
+    ADD CONSTRAINT barcode_document_id_fk FOREIGN KEY (document_id) REFERENCES document (id) ON DELETE CASCADE;
+
+
+CREATE TABLE signature (
+     id SERIAL NOT NULL,
+     signer_name varchar(100) NOT NULL,
+     signer_nif varchar(50) NOT NULL,
+     is_valid boolean NOT NULL,
+     is_cover_whole boolean NOT NULL,
+     sig_date TIMESTAMP NOT NULL,
+     metadata varchar(2000) NOT NULL,
+     document_id bigint NOT NULL,
+     PRIMARY KEY (id)
+);
+
+ALTER TABLE signature
+    ADD CONSTRAINT signature_document_id_fk FOREIGN KEY (document_id) REFERENCES document (id) ON DELETE CASCADE;
+
+
 INSERT INTO roles (role) VALUES ('ADMIN');
 INSERT INTO roles (role) VALUES ('USER');
 -- user admin with password admin

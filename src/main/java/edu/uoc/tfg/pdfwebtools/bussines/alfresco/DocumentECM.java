@@ -1,10 +1,9 @@
 package edu.uoc.tfg.pdfwebtools.bussines.alfresco;
 
 import java.io.InputStream;
-import java.util.Date;
 
 
-public interface Document {
+public interface DocumentECM {
 
     Integer getEcmid();
 
