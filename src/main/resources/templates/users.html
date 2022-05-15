@@ -1,12 +1,28 @@
 <!--/* Thymeleaf templating engine, Each token will be replaced by their respective titles in the resulting page. */-->
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sd="http://www.w3.org/1999/xhtml"
       layout:decorate="~{layout}">
 <head>
+    <script>
+        function activateUser(id,key) {
+            console.log(id);
+            console.log(key);
+            $("#tableUsers").empty();
+            $("#tableUsers").load('users/ajax/activate', {id:id, value:key}) ;
+        }
+
+        function deactivateUser(id,key) {
+            console.log(id);
+            console.log(key);
+            $("#tableUsers").empty();
+            $("#tableUsers").load('users/ajax/deactivate', {id:id, value:key}) ;
+        }
+    </script>
     <title>Búsqueda de Clientes</title>
 </head>
 <body>
 <div layout:fragment="breadcrumb">
-    <h1>Gestió de Signatures</h1>
+    <h1>Users management:</h1>
     <ol class="breadcrumb">
          <li><a th:href="@{/}"><i class="fa fa-dashboard"></i>Home</a></li>
         <li class="active">Signatures</li>
@@ -30,6 +46,105 @@
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         <h4><i class="icon fa fa-warning"></i> Error!</h4>
         <p th:text="${message_error}"></p>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <div class="box-tools">
+                        <form th:action="@{/users}" method="get">
+                            <div class="input-group input-group-sm" style="width: 250px;">
+                                <input type="text" name="value" class="form-control pull-right"
+                                       placeholder="Filter by username or Name" th:if="${key} == null"/>
+                                <input type="text" name="value" class="form-control pull-right"
+                                       placeholder="Filter by username or Name" th:if="${key} != null"
+                                       th:value="${key}"/>
+                                <div class="input-group-btn">
+                                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- /.box-header -->
+                <div class="box-body">
+                    Show <span sd:page-size-selector="javascript"></span> entries
+
+                    <div class="table-responsive">
+                        <table id="tableUsers" th:fragment="users" class="table table-bordered table-striped">
+
+                            <div th:align="center" th:if="${error_action != null}" class="alert alert-error alert-dismissible a">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                <h4><i class="icon fa fa-warning"></i> Error!</h4>
+                                <p th:text="${error_action}"></p>
+                            </div>
+
+                            <thead>
+                            <tr>
+
+                                <th>Id</th>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Surname</th>
+                                <th>Registered Date</th>
+                                <th>Is Active</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="st,iter : ${users}">
+
+                                <td th:text="${st.id}"></td>
+                                <td th:text="${st.username}"></td>
+                                <td th:text="${st.name}"></td>
+                                <td th:text="${st.surname}"></td>
+                                <td th:text="${st.registerDate}"></td>
+                                <td th:text="${#strings.capitalize(st.isActive)}"></td>
+
+                                <td>
+
+                                    <a th:if="! ${st.isActive}"
+                                       class="btn btn-default bg-red"
+                                       th:onclick="'activateUser(\'' + ${st.id} + '\');'"
+                                       title="Activate"><span class="glyphicon glyphicon-thumbs-up"></span></a>
+
+                                    <a th:if="${st.isActive}"
+                                       class="btn btn-default bg-aqua"
+                                       th:onclick="'deactivateUser(\'' + ${st.id} + '\');'"
+                                       title="Deactivate"><span class="glyphicon glyphicon-thumbs-down"></span></a>
+
+
+                                </td>
+                            </tr>
+                            <tr th:if="! ${users.hasContent()}">
+                                <td colspan="13" class="text-center">no users</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div th:if="${users.hasContent()}">
+
+                    <span sd:pagination-summary="compact">info</span>
+                    <div class="text-center">
+                        <nav>
+                            <ul class="pagination" sd:pagination-split="7" sd:pagination="full">
+                                <!-- Pagination created by SpringDataDialect, this content is just for mockup -->
+                                <li class="disabled"><a href="#" aria-label="Previous"><span
+                                        aria-hidden="true">&laquo;</span></a></li>
+                                <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
     </div>
 
 </div>

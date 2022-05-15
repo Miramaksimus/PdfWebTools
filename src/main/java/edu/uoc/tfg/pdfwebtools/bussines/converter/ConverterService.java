@@ -1,5 +1,5 @@
 package edu.uoc.tfg.pdfwebtools.bussines.converter;
 
-public interface ProfileService {
+public interface ConverterService {
 
 }

@@ -3,7 +3,7 @@ package edu.uoc.tfg.pdfwebtools.bussines.alfresco;
 import java.io.InputStream;
 
 
-public interface ProveidorInputStream {
+public interface InputStreamProvider {
 
     InputStream nouInputStream();
 

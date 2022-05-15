@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class AlfrescoServiceBean implements AlfrescoServiceLocal {
+public class AlfrescoECMServiceBean implements AlfrescoECMService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AlfrescoServiceBean.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlfrescoECMServiceBean.class);
 
 
     @Autowired
-    public AlfrescoServiceBean() {
+    public AlfrescoECMServiceBean() {
     }
 
     @Override
@@ -24,7 +24,7 @@ public class AlfrescoServiceBean implements AlfrescoServiceLocal {
     }
 
     @Override
-    public Boolean updateDocument(int documentId, DocumentSignatura docSigned) {
+    public Boolean updateDocument(int documentId, Document docSigned) {
         logger.debug("documentId...: {}", documentId);
        return false;
     }

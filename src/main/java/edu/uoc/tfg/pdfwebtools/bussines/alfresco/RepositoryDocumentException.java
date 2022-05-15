@@ -1,7 +1,7 @@
 package edu.uoc.tfg.pdfwebtools.bussines.alfresco;
 
 
-public class RepositoriDocumentsException extends RuntimeException {
+public class RepositoryDocumentException extends RuntimeException {
 
     public enum Tipus {
         INNACCESSIBLE, NOT_FOUND, INESPERAT, MIDA, INPUTSTREAM
@@ -9,7 +9,7 @@ public class RepositoriDocumentsException extends RuntimeException {
 
     private final Tipus tipus;
 
-    public RepositoriDocumentsException(String message, Throwable cause, Tipus tipus) {
+    public RepositoryDocumentException(String message, Throwable cause, Tipus tipus) {
         super(message, cause);
         this.tipus = tipus;
     }

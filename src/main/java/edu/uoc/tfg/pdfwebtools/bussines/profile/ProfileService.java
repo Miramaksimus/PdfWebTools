@@ -6,4 +6,7 @@ public interface ProfileService {
 
     User registerUser(User user);
 
+    User activateUser(Integer id);
+
+    User deactivateUser(Integer id);
 }
