@@ -1,10 +1,11 @@
 package edu.uoc.tfg.pdfwebtools.bussines.profile;
 
+import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Role;
 import edu.uoc.tfg.pdfwebtools.integration.entities.User;
-import edu.uoc.tfg.pdfwebtools.integration.repositories.profile.RoleRepository;
-import edu.uoc.tfg.pdfwebtools.integration.repositories.profile.UserRepository;
-import edu.uoc.tfg.pdfwebtools.integration.repositories.profile.UserRoleType;
+import edu.uoc.tfg.pdfwebtools.integration.repos.profile.RoleRepository;
+import edu.uoc.tfg.pdfwebtools.integration.repos.profile.UserRepository;
+import edu.uoc.tfg.pdfwebtools.integration.repos.profile.UserRoleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,10 @@ public class ProfileServiceBean implements  ProfileService{
         user.setRegisterDate(Instant.now() );
         user.setRoles(roles);
         user.setIsActive(false);
+        Folder folder = new Folder();
+        folder.setName(user.getName());
+        folder.setUser(user);
+        user.getFolders().add(folder);
         return  userRepository.save(user);
 
     }

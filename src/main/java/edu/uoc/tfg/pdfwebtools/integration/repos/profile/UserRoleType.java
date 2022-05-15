@@ -1,4 +1,4 @@
-package edu.uoc.tfg.pdfwebtools.integration.repositories.profile;
+package edu.uoc.tfg.pdfwebtools.integration.repos.profile;
 
 /**
  * Created on September, 2019

@@ -2,9 +2,8 @@ package edu.uoc.tfg.pdfwebtools.appconfig.security;
 
 
 import edu.uoc.tfg.pdfwebtools.integration.entities.User;
-import edu.uoc.tfg.pdfwebtools.integration.repositories.profile.UserRepository;
+import edu.uoc.tfg.pdfwebtools.integration.repos.profile.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

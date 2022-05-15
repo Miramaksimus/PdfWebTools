@@ -28,8 +28,11 @@ public class User {
     @Column(name = "register_date", nullable = false)
     private Instant registerDate;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = false;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Folder> folders = new LinkedHashSet<>();
 
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", schema = "pdf_web_tools",
@@ -91,6 +94,14 @@ public class User {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public Set<Folder> getFolders() {
+        return folders;
+    }
+
+    public void setFolders(Set<Folder> folders) {
+        this.folders = folders;
     }
 
     public Set<Role> getRoles() {

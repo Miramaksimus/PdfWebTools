@@ -4,12 +4,13 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class UserRoleId implements Serializable {
-    private static final long serialVersionUID = -2111660835933253528L;
+    private static final long serialVersionUID = -2248702693302159481L;
     @Column(name = "user_id", nullable = false)
     private Long userId;
 

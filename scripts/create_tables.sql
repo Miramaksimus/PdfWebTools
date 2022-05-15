@@ -28,6 +28,10 @@ set schema 'pdf_web_tools';
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS user_roles CASCADE;
+DROP TABLE IF EXISTS folder CASCADE;
+DROP TABLE IF EXISTS document CASCADE;
+DROP TABLE IF EXISTS barcode CASCADE;
+DROP TABLE IF EXISTS signature CASCADE;
 
 CREATE TABLE users (
    id  SERIAL NOT NULL,
@@ -68,6 +72,8 @@ CREATE TABLE folder (
     PRIMARY KEY (id)
 );
 
+ALTER TABLE folder
+    ADD CONSTRAINT folder_user_id_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;
 ALTER TABLE folder
     ADD CONSTRAINT folder_parent_folder_fk FOREIGN KEY (parent_folder) REFERENCES folder (id) ON DELETE CASCADE;
 ALTER TABLE  folder

@@ -2,7 +2,7 @@ package edu.uoc.tfg.pdfwebtools.presentation.profile;
 
 import edu.uoc.tfg.pdfwebtools.bussines.profile.ProfileService;
 import edu.uoc.tfg.pdfwebtools.integration.entities.User;
-import edu.uoc.tfg.pdfwebtools.integration.repositories.profile.UserPagingRepository;
+import edu.uoc.tfg.pdfwebtools.integration.repos.profile.UserPagingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
