@@ -15,18 +15,18 @@ public class Folder {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_folder")
     private Folder parentFolder;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "folder")
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<Document> documents = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "parentFolder")
+    @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<Folder> folders = new LinkedHashSet<>();
 
     public Integer getId() {

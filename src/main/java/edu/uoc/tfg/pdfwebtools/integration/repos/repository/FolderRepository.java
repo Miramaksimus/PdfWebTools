@@ -9,7 +9,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FolderRepository extends JpaRepository<Folder, Integer> {
 
-	Folder findByUser(User user);
+	Folder findByUser_Username(String username);
+
+	Folder findByUser_UsernameAndParentFolder(String username, Folder parent);
+
+	Folder findByUser_UsernameAndId(String username, Integer id);
 
 
 }

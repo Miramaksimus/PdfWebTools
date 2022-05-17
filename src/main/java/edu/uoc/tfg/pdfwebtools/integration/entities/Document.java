@@ -29,10 +29,10 @@ public class Document {
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
 
-    @OneToMany(mappedBy = "document")
+    @OneToMany(mappedBy = "document", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<Barcode> barcodes = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "document")
+    @OneToMany(mappedBy = "document", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<Signature> signatures = new LinkedHashSet<>();
 
     public Integer getId() {

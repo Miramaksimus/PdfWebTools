@@ -3,7 +3,9 @@ package edu.uoc.tfg.pdfwebtools.presentation.repository;
 
 import edu.uoc.tfg.pdfwebtools.appexceptions.PdfAppException;
 import edu.uoc.tfg.pdfwebtools.bussines.alfresco.DocumentECM;
+import edu.uoc.tfg.pdfwebtools.bussines.profile.ProfileService;
 import edu.uoc.tfg.pdfwebtools.bussines.repository.RepositoryService;
+import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -29,17 +35,36 @@ public class RepositoryController {
 
     RepositoryService repositoryService;
 
+    ProfileService profileService;
+
 
     @Autowired
-    public RepositoryController() {
+    public RepositoryController(RepositoryService repositoryService, ProfileService profileService) {
+        this.repositoryService = repositoryService;
+        this.profileService = profileService;
     }
 
     @GetMapping("/repository")
     public ModelAndView repository(Model model, @RequestParam(value = "message_error", required = false) String message_error,
-                                   @RequestParam(value = "message_info", required = false) String message_info) {
+                                   @RequestParam(value = "message_info", required = false) String message_info,
+                                   @RequestParam(value = "folder_id", required = false) String folderId) {
         logger.debug("repository...: /");
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        model.addAttribute("username", principal);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("username", username);
+        /* User user = userRepository.findByUsername(username);*/
+        Folder folder;
+        if (folderId != null) {
+            folder = repositoryService.findFolderByUser_UsernameAndId(username, Integer.valueOf(folderId));
+        } else {
+            folder = repositoryService.findFolderByUser_UsernameAndParentFolder(username, null);
+        }
+        if (folder != null){
+            folder.setFolders( folder.getFolders().stream()
+                    .sorted(Comparator.comparing(Folder::getName))
+                    .collect(Collectors.toCollection(LinkedHashSet::new)
+                    ));
+            model.addAttribute("folder", folder);
+        }
         if (message_error != null) model.addAttribute("message_error", message_error);
         if (message_info != null) model.addAttribute("message_info", message_info);
 

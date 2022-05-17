@@ -127,5 +127,6 @@ INSERT INTO roles (role) VALUES ('USER');
 INSERT INTO users (username, name, surname, password, is_active) VALUES ('admin','admin','admin', '$2a$04$6su6bxnQ./lLkwqQZ.tGcuCGnuNIwTLAJ5FGNddstz6FfGkXp4nm2', 'TRUE');
 -- user admin has role admin
 INSERT INTO user_roles (user_id, role_id) VALUES (1, 1);
+INSERT INTO folder (name, user_id) VALUES ('Repository Root Folder', 1);
 
 END;

@@ -5009,3 +5009,21 @@ custom
     display: block;
     padding: 4rem;
 }
+
+.scrollable-panel{
+    height: 80vh;
+    overflow-y:scroll;
+    width:100%;
+}
+
+.scrollable-panel-actions{
+    height: 25vh;
+    overflow-y:scroll;
+    width:100%;
+}
+
+.scrollable-panel-info{
+    height: 45vh;
+    overflow-y:scroll;
+    width:100%;
+}

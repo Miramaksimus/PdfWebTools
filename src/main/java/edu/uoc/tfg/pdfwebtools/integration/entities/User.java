@@ -31,7 +31,7 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<Folder> folders = new LinkedHashSet<>();
 
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
