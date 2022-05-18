@@ -66,7 +66,7 @@ ALTER TABLE user_roles
 
 CREATE TABLE folder (
     id SERIAL NOT NULL,
-    name varchar(50) NOT NULL,
+    name varchar(200) NOT NULL,
     parent_folder bigint,
     user_id bigint NOT NULL,
     PRIMARY KEY (id)
@@ -81,10 +81,10 @@ ALTER TABLE  folder
 
 CREATE TABLE document (
     id SERIAL NOT NULL,
-    title varchar(200) NOT NULL,
-    mime_type varchar(50) NOT NULL,
+    title varchar(350) NOT NULL,
+    mime_type varchar(200) NOT NULL,
     date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ecmid bigint NOT NULL,
+    ecmid varchar(200) NOT NULL,
     folder_id bigint NOT NULL,
     PRIMARY KEY (id)
 );

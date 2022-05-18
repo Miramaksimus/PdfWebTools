@@ -2,7 +2,9 @@ package edu.uoc.tfg.pdfwebtools.bussines.repository;
 
 
 import edu.uoc.tfg.pdfwebtools.bussines.alfresco.DocumentECM;
+import edu.uoc.tfg.pdfwebtools.integration.entities.Document;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -10,7 +12,11 @@ public interface RepositoryService {
 
     DocumentECM downloadDocument(Integer id);
 
+    Folder createFolder(String username, Folder folder);
+
     Folder findFolderByUser_UsernameAndId(String username, Integer folderId);
 
-    Folder findFolderByUser_UsernameAndParentFolder(String principal, Folder parentFolder);
+    Folder findFolderByUser_UsernameAndParentFolder(String username, Folder parentFolder);
+
+    Document uploadDocument(MultipartFile file, Folder parentFolder);
 }

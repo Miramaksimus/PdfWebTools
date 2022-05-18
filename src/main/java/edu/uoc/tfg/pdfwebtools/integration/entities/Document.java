@@ -22,10 +22,10 @@ public class Document {
     @Column(name = "date", nullable = false)
     private Instant date;
 
-    @Column(name = "ecmid", nullable = false)
-    private Long ecmid;
+    @Column(name = "ecmid", nullable = false, length = 200)
+    private String ecmid;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
 
@@ -67,11 +67,11 @@ public class Document {
         this.date = date;
     }
 
-    public Long getEcmid() {
+    public String getEcmid() {
         return ecmid;
     }
 
-    public void setEcmid(Long ecmid) {
+    public void setEcmid(String ecmid) {
         this.ecmid = ecmid;
     }
 

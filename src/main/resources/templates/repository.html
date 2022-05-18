@@ -20,10 +20,10 @@
         <div class="box">
             <div class="box-body no-padding">
                 <div class="mailbox-controls">
-                    <button type="button" class="btn btn-default btn-sm"><i class="fa fa-plus-square"></i> Create folder
+                    <button type="button" data-toggle="modal" data-target="#uploadFolderModal" class="btn btn-default btn-sm"><i class="fa fa-plus-square"></i> Create folder
                     </button>
                     <div class="pull-right">
-                        <button type="button" class="btn btn-default btn-sm"><i class="fa fa-upload"></i>
+                        <button type="button" data-toggle="modal" data-target="#uploadFileModal" class="btn btn-default btn-sm"><i class="fa fa-upload"></i>
                             <span> Upload document</span>
                     </div>
                 </div>
@@ -33,24 +33,120 @@
 </div>
 </div>
 <div layout:fragment="content">
-    <!-- /.box -->
-    <!-- general form elements -->
-    <div th:if="${message != null}" class="alert alert-warning alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-warning"></i> Alert!</h4>
-        <p th:text="${message}"></p>
-    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="uploadFolderModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="uploadFolderModalLabel">Create folder</h4>
+                </div>
+                <div class="modal-body">
 
-    <div th:if="${message_info != null}" class="alert alert-info alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-warning"></i> Info!</h4>
-        <p th:text="${message_info}"></p>
-    </div>
+                    <form role="form" th:action="@{/repository/folder}" th:object="${newFolder}" enctype="multipart/form-data"
+                          method="post" >
+                        <div class="box-body">
 
-    <div th:if="${message_error != null}" class="alert alert-warning alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-warning"></i> Error!</h4>
-        <p th:text="${message_error}"></p>
+                            <div class="form-group">
+                                <label for="folder_name"
+                                       data-toggle="tooltip" data-placement="right" data-html="true"
+                                       title="Folder name">Folder name</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="folder_name"
+                                       th:field="${newFolder.name}"
+                                       th:required="required"
+                                       placeholder="Folder name">
+
+                            </div>
+
+                            <div th:if="${folder != null}" class="form-group">
+                                <input type="hidden"
+                                       id="parent_folder"
+                                       name="parentFolder.id"
+                                       th:value="${folder.id}" />
+                            </div>
+
+                        </div>
+                        <!-- /.box-body -->
+
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Modal -->
+    <!-- Modal -->
+    <div class="modal fade" id="uploadFileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="uploadFileModalLabel">Upload document</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" th:action="@{/repository/upload}" th:object="${newDoc}" enctype="multipart/form-data"
+                          method="post" >
+                        <div class="box-body">
+
+                            <div class="form-group">
+                                <label for="doc_file"
+                                       data-toggle="tooltip" data-placement="right" data-html="true">Select file</label>
+                                <input type="file"
+                                       id="doc_file"
+                                       accept=".pdf, .docx, .doc, .txt, .jpeg, .png "
+                                       th:field="${newDoc.file}"
+                                       th:required="required"
+                                       class="form-control-file">
+                            </div>
+
+                            <div th:if="${folder != null}" class="form-group">
+                                <input type="hidden"
+                                       id="doc_folder"
+                                       name="parentFolder.id"
+                                       th:value="${folder.id}" />
+                            </div>
+
+                        </div>
+                        <!-- /.box-body -->
+
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Modal -->
+    <div class="col-md-7">
+        <div th:if="${message != null}" class="alert alert-warning alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h4><i class="icon fa fa-warning"></i> Alert!</h4>
+            <p th:text="${message}"></p>
+        </div>
+
+        <div th:if="${message_info != null}" class="alert alert-info alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h4><i class="icon fa fa-warning"></i> Info!</h4>
+            <p th:text="${message_info}"></p>
+        </div>
+
+        <div th:if="${message_error != null}" class="alert alert-warning alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h4><i class="icon fa fa-warning"></i> Error!</h4>
+            <p th:text="${message_error}"></p>
+        </div>
     </div>
 
     <div class="row">
@@ -61,6 +157,7 @@
                 <div class="panel panel-primary">
                     <div class="panel-body scrollable-panel">
                         <div th:if="${folder != null}" id="folders" >
+                            <!--root folders-->
                             <ul class="nav nav-pills nav-stacked">
                                 <li th:if="${folder.parentFolder != null}" >
                                     <a th:href="@{/repository(folder_id=${folder.parentFolder.id})}"><i class="fa fa-backward"></i> <span th:text="${folder.parentFolder.name}"></span></a>
@@ -69,6 +166,7 @@
                                     <a th:href="@{/repository(folder_id=${folder.id})}"><i class="fa fa-folder-open"></i> <span th:text="${folder.name}"></span></a>
                                 </li>
                             </ul>
+                            <!--folders-->
                             <div class=""  th:each="f: ${folder.folders}">
                                 <ul class="nav nav-pills nav-stacked">
                                     <li>
@@ -76,7 +174,27 @@
                                     </li>
                                 </ul>
                             </div>
+                            <!--documents-->
+                            <div class=""  th:each="d: ${folder.documents}">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li th:id="repo_doc_ + ${d.id}">
+                                        <a th:switch="${d.mimeType}" th:href="@{/repository(doc_id=${d.id})}">
+                                            <i th:case="'application/pdf'" class="fa fa-file-pdf-o"></i>
+                                            <i th:case="'application/msword'" class="fa fa-file-word-o"></i>
+                                            <i th:case="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="fa fa-file-word-o"></i>
+                                            <i th:case="'image/jpeg'"  class="fa fa-file-image-o"></i>
+                                            <i th:case="'image/png'" class="fa fa-file-image-o"></i>
+                                            <i th:case="'text/plain'" class="fa fa-file-code-o"></i>
+                                            <i th:case="*" class="fa fa-file-o"></i>
+                                            <span th:text="${d.title}"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
+
+
+
 
                     </div>
                 </div>
