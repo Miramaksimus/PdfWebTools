@@ -58,7 +58,13 @@ public class RepositoryServiceBean implements RepositoryService {
 
         try {
             User user = userRepository.findByUsername(username);
+            checkIfIsFirstAdminAccessToCreate(user);
             folder.setUser(user);
+            Folder parentFolder = null;
+            if(folder.getParentFolder() != null ) parentFolder = findFolderByUser_UsernameAndId(username, folder.getParentFolder().getId());
+            String parentFolderEcmid= parentFolder != null ? parentFolder.getEcmid() : null;
+            String ecmId = alfrescoECMService.createFolder(folder.getName(), parentFolderEcmid, user.getUsername());
+            folder.setEcmid(ecmId);
             return folderRepository.save(folder);
         } catch (DataIntegrityViolationException e) {
             throw new PdfAppException("It does not allow two folders with the same name in the same directory", PdfAppException.Type.CONSTRAINT_VIOLATION);
@@ -79,7 +85,10 @@ public class RepositoryServiceBean implements RepositoryService {
     @Override
     public Document uploadDocument(MultipartFile file, Folder parentFolder, String username) {
         try {
-            String ecmId = alfrescoECMService.uploadDocument(file.getOriginalFilename(), username, file);
+            User user = userRepository.findByUsername(username);
+            checkIfIsFirstAdminAccessToCreate(user);
+            Folder folder = findFolderByUser_UsernameAndId(username, parentFolder.getId());
+            String ecmId = alfrescoECMService.uploadDocument(file.getOriginalFilename(), username, file, folder.getEcmid());
             Document document = new Document();
             document.setFolder(parentFolder);
             document.setDate(Instant.now());
@@ -96,5 +105,23 @@ public class RepositoryServiceBean implements RepositoryService {
     @Transactional
     public Document findDocumentByIdAdnFolderId(Integer docId, Integer folderId) {
         return documentRepository.findByIdAndFolder_Id(docId, folderId);
+    }
+
+    @Override
+    public Boolean deleteDocument(Document doc) {
+        Boolean result = alfrescoECMService.deleteDocument(doc.getEcmid());
+        documentRepository.delete(doc);
+        return result;
+    }
+
+    private void checkIfIsFirstAdminAccessToCreate(User user) {
+        if(user.getName().equals("admin")){
+            Folder folder = findFolderByUser_UsernameAndParentFolder(user.getName(), null);
+            if(folder.getEcmid() == null){
+                folder.setEcmid(alfrescoECMService.createFolder("ADMIN Repository Root Folder", null, user.getName()));
+                folderRepository.save(folder);
+            }
+        }
+
     }
 }

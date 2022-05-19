@@ -29,6 +29,9 @@ public class Folder {
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<Folder> folders = new LinkedHashSet<>();
 
+    @Column(name = "ecmid", nullable = false, length = 200)
+    private String ecmid;
+
     public Integer getId() {
         return id;
     }
@@ -75,6 +78,14 @@ public class Folder {
 
     public void setFolders(Set<Folder> folders) {
         this.folders = folders;
+    }
+
+    public String getEcmid() {
+        return ecmid;
+    }
+
+    public void setEcmid(String ecmid) {
+        this.ecmid = ecmid;
     }
 
 }

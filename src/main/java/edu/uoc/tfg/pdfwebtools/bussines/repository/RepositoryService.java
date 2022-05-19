@@ -19,4 +19,6 @@ public interface RepositoryService {
     Document uploadDocument(MultipartFile file, Folder parentFolder, String username);
 
     Document findDocumentByIdAdnFolderId(Integer docId, Integer folderId);
+
+    Boolean deleteDocument(Document doc);
 }

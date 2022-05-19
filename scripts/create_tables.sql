@@ -69,6 +69,7 @@ CREATE TABLE folder (
     name varchar(200) NOT NULL,
     parent_folder bigint,
     user_id bigint NOT NULL,
+    ecmid varchar(200),
     PRIMARY KEY (id)
 );
 

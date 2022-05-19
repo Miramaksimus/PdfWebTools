@@ -8,9 +8,9 @@ import java.io.InputStream;
 public interface AlfrescoECMService {
 
 
-    String uploadDocument(String docName, String userName, MultipartFile file, String parentFolder);
+    String uploadDocument(String docName, String userName, MultipartFile file, String parentFolderEcmId);
 
-    String createFolder(String folderName, String parentFolder, String userName);
+    String createFolder(String folderName, String parentIdEcmid, String userName);
 
     boolean deleteDocument(String docId);
 

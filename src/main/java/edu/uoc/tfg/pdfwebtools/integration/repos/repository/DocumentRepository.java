@@ -7,4 +7,5 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
     Document findByIdAndFolder_Id(Integer docId, Integer folderId );
 
+
 }

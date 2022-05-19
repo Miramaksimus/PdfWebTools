@@ -244,6 +244,9 @@
                                     <li th:if="${selected_doc != null}">
                                         <a th:href="@{/repository/download(id=${selected_doc.id})}"><i class="fa fa-download"></i> Download document</a>
                                     </li>
+                                    <li th:if="${selected_doc != null}">
+                                        <a th:href="@{/repository/delete(folder_id=${folder.id}, id=${selected_doc.id})}"><i class="fa fa-trash"></i> Delete document</a>
+                                    </li>
                                 </ul>
                             </div>
                             <!-- /.box-body -->

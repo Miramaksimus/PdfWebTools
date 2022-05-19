@@ -45,7 +45,7 @@ public class RepositoryController {
     }
 
     @GetMapping("/repository")
-    public ModelAndView repository(Model model, @RequestParam(value = "message_error", required = false) String message_error,
+    public ModelAndView consultAndListDocuments(Model model, @RequestParam(value = "message_error", required = false) String message_error,
                                    @RequestParam(value = "message_info", required = false) String message_info,
                                    @RequestParam(value = "folder_id", required = false) String folderId,
                                    @RequestParam(value = "doc_id", required = false) String docId) {
@@ -100,7 +100,7 @@ public class RepositoryController {
     }
 
     @PostMapping("/repository/upload")
-    public Object upload(Model model, @ModelAttribute UplodedDocument newDoc,
+    public Object uploadDocument(Model model, @ModelAttribute UplodedDocument newDoc,
                          @RequestParam("file") MultipartFile file) {
         logger.debug("upload.../repository/upload");
         try {
@@ -124,6 +124,33 @@ public class RepositoryController {
         return new ModelAndView("redirect:/repository", model.asMap());
 
     }
+
+
+    @GetMapping("/repository/delete")
+    public Object deleteDocument(Model model,@RequestParam(value = "folder_id", required = true) String folderId,
+                                 @RequestParam(value = "id", required = true) String docId) {
+        logger.debug("deleteDocument.../repository/delete  docId: " + docId);
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Document doc = repositoryService.findDocumentByIdAdnFolderId(Integer.valueOf(docId), Integer.valueOf(folderId));
+            if(doc != null && doc.getFolder().getUser().getUsername().equals(username)){
+                Boolean isDeleted  =  repositoryService.deleteDocument(doc);
+            } else {
+                throw  new PdfAppException("Document not exist or user not have permissions", PdfAppException.Type.NOT_FOUND);
+            }
+
+        } catch (PdfAppException e) {
+            logger.error("Error: " + e.getMessage(), e);
+            model.addAttribute("message_error", "Error type: " + e.getType() + ". Error message: " + e.getMessage());
+
+        } catch (Exception e) {
+            logger.error("Error: " + e.getMessage(), e);
+            model.addAttribute("message_error", "Error type: " + e.getCause() + ". Error message: " + e.getMessage());
+        }
+        return new ModelAndView("redirect:/repository", model.asMap());
+
+    }
+
 
     @GetMapping("/repository/download")
     public void downloadDocument(String id, HttpServletResponse response) throws IOException {

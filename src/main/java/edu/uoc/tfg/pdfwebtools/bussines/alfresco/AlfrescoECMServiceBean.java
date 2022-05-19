@@ -67,7 +67,7 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
     }
 
     @Override
-    public String uploadDocument(String docName, String userName, MultipartFile file, String parentFolder) {
+    public String uploadDocument(String docName, String userName, MultipartFile file, String parentFolderEcmId) {
         logger.debug("uploadDocument  docName: {}, userName: {}", docName, userName);
         Map<String, Object> props = new HashMap<>();
         props.put(PropertyIds.NAME, docName);
@@ -75,8 +75,8 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
         props.put(PropertyIds.CONTENT_STREAM_LENGTH, file.getSize());
         props.put(PropertyIds.OBJECT_TYPE_ID, "cmis:document");
         props.put(PropertyIds.CONTENT_STREAM_MIME_TYPE, file.getContentType());
-        Folder root = (Folder) getCmisObject(parentFolder != null ? parentFolder : ROOT_FOLDER);
-
+        /*Folder root = (Folder) getCmisObject(parentFolderEcmId != null ? parentFolderEcmId : ROOT_FOLDER);*/
+        Folder root = (Folder) getCmisObject(parentFolderEcmId);
         Session session = getSession();
         ObjectFactory objectFactory = session.getObjectFactory();
         ContentStream stream = null;
@@ -94,24 +94,31 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
         if (logger.isDebugEnabled()) {
             print(doc.getProperties());
         }
+        if (doc == null) throw new PdfAppException("Fault create document in Alfresco repository", PdfAppException.Type.UNEXPECTED);
+
         return doc.getId();
 
     }
 
     @Override
-    public String createFolder(String folderName, String parentId, String userName) {
-        logger.debug("uploadDocument  folderName: {}, userName: {}, parentId: {}", folderName, userName, parentId);
+    public String createFolder(String folderName, String parentIdEcmid, String userName) {
+        logger.debug("uploadDocument  folderName: {}, userName: {}, parentId: {}", folderName, userName, parentIdEcmid);
         Map<String, Object> props = new HashMap<>();
         props.put(PropertyIds.NAME, folderName);
         props.put(PropertyIds.CREATED_BY, userName);
         props.put(PropertyIds.OBJECT_TYPE_ID, "cmis:folder");
-        Folder root = (Folder) getCmisObject(parentId);
-        return root.createFolder(props).getId();
+        Folder root = (Folder) getCmisObject(parentIdEcmid  != null ? parentIdEcmid : ROOT_FOLDER);
+        Folder folder = root.createFolder(props);
+        if (folder == null) throw new PdfAppException("Fault create folder in Alfresco repository", PdfAppException.Type.UNEXPECTED);
+        return folder.getId();
     }
 
     @Override
     public boolean deleteDocument(String docId) {
-        return false;
+        logger.debug("deleteDocument  docId: {}", docId);
+        Document document = (Document) getCmisObject(docId);
+        document.delete();
+        return true;
     }
 
     @Override
