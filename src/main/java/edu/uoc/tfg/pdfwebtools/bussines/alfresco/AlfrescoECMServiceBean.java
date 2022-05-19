@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,33 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
     }
 
     @Override
+    public String uploadDocument(DocumentECM doc, String userName, String ecmid) {
+        logger.debug("uploadDocument  docName: {}, userName: {}", doc.getName(), userName);
+        Map<String, Object> props = new HashMap<>();
+        props.put(PropertyIds.NAME, doc.getName());
+        props.put(PropertyIds.CREATED_BY, userName);
+        props.put(PropertyIds.CONTENT_STREAM_LENGTH, doc.getContentLength());
+        props.put(PropertyIds.OBJECT_TYPE_ID, "cmis:document");
+        props.put(PropertyIds.CONTENT_STREAM_MIME_TYPE, doc.getMimeType());
+        /*Folder root = (Folder) getCmisObject(parentFolderEcmId != null ? parentFolderEcmId : ROOT_FOLDER);*/
+        Folder root = (Folder) getCmisObject(ecmid);
+        Session session = getSession();
+        ObjectFactory objectFactory = session.getObjectFactory();
+        ContentStream stream = null;
+        stream = objectFactory.createContentStream(
+                doc.getName(), doc.getContentLength(), doc.getMimeType(),  doc.getInputStream());
+
+        Document newDoc = root.createDocument(props, stream, VersioningState.MAJOR);
+
+        if (logger.isDebugEnabled()) {
+            print(newDoc.getProperties());
+        }
+        if (newDoc == null) throw new PdfAppException("Fault create document in Alfresco repository", PdfAppException.Type.UNEXPECTED);
+
+        return newDoc.getId();
+    }
+
+    @Override
     public String createFolder(String folderName, String parentIdEcmid, String userName) {
         logger.debug("uploadDocument  folderName: {}, userName: {}, parentId: {}", folderName, userName, parentIdEcmid);
         Map<String, Object> props = new HashMap<>();
@@ -122,7 +150,7 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
     }
 
     @Override
-    public InputStream downloadDocument(String ecmId) {
+    public DocumentECM downloadDocument(String ecmId) {
 
         Session session = getSession();
         try {
@@ -130,7 +158,11 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
                     createOperationContext(session));
             // force reload to prevent receive cached object
             r.refresh();
-            return r.getContentStream().getStream();
+
+            DocumentECM ret = new  DocumentECM();
+            ret.setInputStream(r.getContentStream().getStream());
+            ret.setContentLength(r.getContentStreamLength());
+            return ret;
         } catch (CmisObjectNotFoundException e) {
             logger.error(e.toString());
             throw new PdfAppException("The document is not found in the Alfresco repository", PdfAppException.Type.ALFRESCO);

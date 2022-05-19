@@ -3,6 +3,7 @@ package edu.uoc.tfg.pdfwebtools.bussines.alfresco;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 public interface AlfrescoECMService {
@@ -14,5 +15,7 @@ public interface AlfrescoECMService {
 
     boolean deleteDocument(String docId);
 
-    InputStream downloadDocument(String ecmid);
+    DocumentECM downloadDocument(String ecmid);
+
+    String uploadDocument(DocumentECM doc, String userName, String ecmid) throws IOException;
 }
