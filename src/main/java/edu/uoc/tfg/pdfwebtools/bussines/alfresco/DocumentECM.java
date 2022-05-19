@@ -3,19 +3,33 @@ package edu.uoc.tfg.pdfwebtools.bussines.alfresco;
 import java.io.InputStream;
 
 
-public interface DocumentECM {
+public class DocumentECM {
 
-    Integer getEcmid();
+    private String name;
+    private InputStream inputStream;
+    private String mimeType;
 
-    String getName();
+    public String getName() {
+        return name;
+    }
 
-    InputStream getFile();
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    Long getFileSize();
+    public InputStream getInputStream() {
+        return inputStream;
+    }
 
-    String getMimeType();
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
 
-    String getExtension();
+    public String getMimeType() {
+        return mimeType;
+    }
 
-    String getTitle();
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
 }

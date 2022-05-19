@@ -1,6 +1,7 @@
 package edu.uoc.tfg.pdfwebtools.bussines.repository;
 
 import edu.uoc.tfg.pdfwebtools.appexceptions.PdfAppException;
+import edu.uoc.tfg.pdfwebtools.bussines.alfresco.AlfrescoECMService;
 import edu.uoc.tfg.pdfwebtools.bussines.alfresco.DocumentECM;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Document;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 
 @Service
@@ -26,17 +29,28 @@ public class RepositoryServiceBean implements RepositoryService {
 
     DocumentRepository documentRepository;
 
+    AlfrescoECMService alfrescoECMService;
+
 
     @Autowired
-    public RepositoryServiceBean(FolderRepository folderRepository, UserRepository userRepository, DocumentRepository documentRepository) {
+    public RepositoryServiceBean(FolderRepository folderRepository, UserRepository userRepository,
+                                 DocumentRepository documentRepository, AlfrescoECMService alfrescoECMService) {
         this.folderRepository = folderRepository;
         this.userRepository = userRepository;
         this.documentRepository = documentRepository;
+        this.alfrescoECMService = alfrescoECMService;
     }
 
     @Override
+    @Transactional
     public DocumentECM downloadDocument(Integer id) {
-        return null;
+        Document doc = documentRepository.getById(id);
+        DocumentECM ret = new  DocumentECM();
+        InputStream is = alfrescoECMService.downloadDocument(doc.getEcmid());
+        ret.setInputStream(is);
+        ret.setName(doc.getTitle());
+        ret.setMimeType(doc.getMimeType());
+        return ret;
     }
 
     @Override
@@ -63,9 +77,9 @@ public class RepositoryServiceBean implements RepositoryService {
     }
 
     @Override
-    public Document uploadDocument(MultipartFile file, Folder parentFolder) {
+    public Document uploadDocument(MultipartFile file, Folder parentFolder, String username) {
         try {
-            String ecmId = "04cc1-b9de1ac41b-97a0c6c08f-a002bc9e44-c47535fa8d-" + Instant.now();
+            String ecmId = alfrescoECMService.uploadDocument(file.getOriginalFilename(), username, file);
             Document document = new Document();
             document.setFolder(parentFolder);
             document.setDate(Instant.now());
@@ -76,5 +90,11 @@ public class RepositoryServiceBean implements RepositoryService {
         } catch (DataIntegrityViolationException e) {
             throw new PdfAppException("It doesn't allow two documents with the same name in the same folder", PdfAppException.Type.CONSTRAINT_VIOLATION);
         }
+    }
+
+    @Override
+    @Transactional
+    public Document findDocumentByIdAdnFolderId(Integer docId, Integer folderId) {
+        return documentRepository.findByIdAndFolder_Id(docId, folderId);
     }
 }

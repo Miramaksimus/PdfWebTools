@@ -1,11 +1,18 @@
 package edu.uoc.tfg.pdfwebtools.bussines.alfresco;
 
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
+
 public interface AlfrescoECMService {
 
-    void getDocument(int documentId);
 
-    Boolean updateDocument(int documentId, DocumentECM docSigned);
+    String uploadDocument(String docName, String userName, MultipartFile file, String parentFolder);
 
-    Boolean updateDocument();
+    String createFolder(String folderName, String parentFolder, String userName);
+
+    boolean deleteDocument(String docId);
+
+    InputStream downloadDocument(String ecmid);
 }

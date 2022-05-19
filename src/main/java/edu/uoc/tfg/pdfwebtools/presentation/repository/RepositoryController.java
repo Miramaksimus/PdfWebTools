@@ -47,7 +47,8 @@ public class RepositoryController {
     @GetMapping("/repository")
     public ModelAndView repository(Model model, @RequestParam(value = "message_error", required = false) String message_error,
                                    @RequestParam(value = "message_info", required = false) String message_info,
-                                   @RequestParam(value = "folder_id", required = false) String folderId) {
+                                   @RequestParam(value = "folder_id", required = false) String folderId,
+                                   @RequestParam(value = "doc_id", required = false) String docId) {
         logger.debug("repository...: /");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         model.addAttribute("username", username);
@@ -55,22 +56,34 @@ public class RepositoryController {
         model.addAttribute("newDoc", new UplodedDocument());
 
         Folder folder;
-        if (folderId != null) {
-            folder = repositoryService.findFolderByUser_UsernameAndId(username, Integer.valueOf(folderId));
-        } else {
-            folder = repositoryService.findFolderByUser_UsernameAndParentFolder(username, null);
-        }
-        if (folder != null) {
-            folder.setFolders(folder.getFolders().stream()
-                    .sorted(Comparator.comparing(Folder::getName))
-                    .collect(Collectors.toCollection(LinkedHashSet::new)
-                    ));
-            folder.setDocuments(folder.getDocuments().stream()
-                    .sorted(Comparator.comparing(Document::getTitle))
-                    .collect(Collectors.toCollection(LinkedHashSet::new)
-                    ));
+        try {
+            if (folderId != null) {
+                folder = repositoryService.findFolderByUser_UsernameAndId(username, Integer.valueOf(folderId));
+            } else {
+                folder = repositoryService.findFolderByUser_UsernameAndParentFolder(username, null);
+            }
+            if (folder != null) {
 
-            model.addAttribute("folder", folder);
+                folder.setFolders(folder.getFolders().stream()
+                        .sorted((p1, p2)->p1.getName().compareToIgnoreCase(p2.getName()))
+                        .collect(Collectors.toCollection(LinkedHashSet::new)
+                        ));
+
+                folder.setDocuments(folder.getDocuments().stream()
+                        .sorted((p1, p2)->p1.getTitle().compareToIgnoreCase(p2.getTitle()))
+                        .collect(Collectors.toCollection(LinkedHashSet::new)
+                        ));
+                model.addAttribute("folder", folder);
+
+                if (docId != null ) {
+                    Document doc = repositoryService.findDocumentByIdAdnFolderId(Integer.valueOf(docId), folder.getId());
+                    model.addAttribute("selected_doc", doc);
+                    model.addAttribute("selected_doc_id", doc.getId());
+                }
+            }
+
+        } catch (NumberFormatException e) {
+            message_error = "Error type: " + e.getCause() + ". Error message: " + e.getMessage();
         }
         if (message_error != null) model.addAttribute("message_error", message_error);
         if (message_info != null) model.addAttribute("message_info", message_info);
@@ -91,11 +104,12 @@ public class RepositoryController {
                          @RequestParam("file") MultipartFile file) {
         logger.debug("upload.../repository/upload");
         try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
             if (!file.isEmpty()) {
                 logger.debug("Filename: " + newDoc.getFile().getOriginalFilename());
                 validateFile(file);
                 model.addAttribute("folder_id", newDoc.getParentFolder().getId());
-                Document doc = repositoryService.uploadDocument(newDoc.getFile(), newDoc.getParentFolder());
+                Document doc = repositoryService.uploadDocument(newDoc.getFile(), newDoc.getParentFolder(), username);
             } else {
                 throw new PdfAppException("It is mandatory to attach a file", PdfAppException.Type.CONSTRAINT_VIOLATION);
             }
@@ -118,7 +132,7 @@ public class RepositoryController {
         response.setContentType(doc.getMimeType());
         response.setHeader("Content-Disposition", "attachment;filename=" + doc.getName());
         OutputStream out = response.getOutputStream();
-        out.write(IOUtils.toByteArray(doc.getFile()));
+        out.write(IOUtils.toByteArray(doc.getInputStream()));
     }
 
     @PostMapping("/repository/folder")

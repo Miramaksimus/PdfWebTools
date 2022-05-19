@@ -6,8 +6,6 @@ import edu.uoc.tfg.pdfwebtools.integration.entities.Document;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 public interface RepositoryService {
 
     DocumentECM downloadDocument(Integer id);
@@ -18,5 +16,7 @@ public interface RepositoryService {
 
     Folder findFolderByUser_UsernameAndParentFolder(String username, Folder parentFolder);
 
-    Document uploadDocument(MultipartFile file, Folder parentFolder);
+    Document uploadDocument(MultipartFile file, Folder parentFolder, String username);
+
+    Document findDocumentByIdAdnFolderId(Integer docId, Integer folderId);
 }
