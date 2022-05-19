@@ -15,8 +15,8 @@ public class RestTemplateConfig {
 
 	private final CloseableHttpClient httpClient;
 
-	@Value("${alfresco.api.host.baseurl}")
-	private String alfrescoBaseUrl;
+	@Value("${alfresco.api.rest.baseurl}")
+	private String alfrescoApiRestBaseurl;
 
 	@Autowired
 	public RestTemplateConfig(CloseableHttpClient httpClient) {
@@ -26,7 +26,7 @@ public class RestTemplateConfig {
 	@Bean
 	public RestTemplate restTemplate() {
 		RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory());
-		restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(alfrescoBaseUrl));
+		restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(alfrescoApiRestBaseurl));
 		return restTemplate;
 	}
 	@Bean

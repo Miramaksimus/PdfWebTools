@@ -3,7 +3,7 @@ package edu.uoc.tfg.pdfwebtools.appexceptions;
 public class PdfAppException extends RuntimeException {
 
     public enum Type {
-        CONSTRAINT_VIOLATION, UNEXPECTED, NOT_FOUND
+        CONSTRAINT_VIOLATION, UNEXPECTED, NOT_FOUND, ALFRESCO
     }
 
     private final Type type;

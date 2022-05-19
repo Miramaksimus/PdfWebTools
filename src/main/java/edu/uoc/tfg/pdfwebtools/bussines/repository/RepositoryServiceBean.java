@@ -1,6 +1,7 @@
 package edu.uoc.tfg.pdfwebtools.bussines.repository;
 
 import edu.uoc.tfg.pdfwebtools.appexceptions.PdfAppException;
+import edu.uoc.tfg.pdfwebtools.bussines.alfresco.AlfrescoECMService;
 import edu.uoc.tfg.pdfwebtools.bussines.alfresco.DocumentECM;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Document;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 
 @Service
@@ -26,17 +29,28 @@ public class RepositoryServiceBean implements RepositoryService {
 
     DocumentRepository documentRepository;
 
+    AlfrescoECMService alfrescoECMService;
+
 
     @Autowired
-    public RepositoryServiceBean(FolderRepository folderRepository, UserRepository userRepository, DocumentRepository documentRepository) {
+    public RepositoryServiceBean(FolderRepository folderRepository, UserRepository userRepository,
+                                 DocumentRepository documentRepository, AlfrescoECMService alfrescoECMService) {
         this.folderRepository = folderRepository;
         this.userRepository = userRepository;
         this.documentRepository = documentRepository;
+        this.alfrescoECMService = alfrescoECMService;
     }
 
     @Override
+    @Transactional
     public DocumentECM downloadDocument(Integer id) {
-        return null;
+        Document doc = documentRepository.getById(id);
+        DocumentECM ret = new  DocumentECM();
+        InputStream is = alfrescoECMService.downloadDocument(doc.getEcmid());
+        ret.setInputStream(is);
+        ret.setName(doc.getTitle());
+        ret.setMimeType(doc.getMimeType());
+        return ret;
     }
 
     @Override
@@ -44,7 +58,13 @@ public class RepositoryServiceBean implements RepositoryService {
 
         try {
             User user = userRepository.findByUsername(username);
+            checkIfIsFirstAdminAccessToCreate(user);
             folder.setUser(user);
+            Folder parentFolder = null;
+            if(folder.getParentFolder() != null ) parentFolder = findFolderByUser_UsernameAndId(username, folder.getParentFolder().getId());
+            String parentFolderEcmid= parentFolder != null ? parentFolder.getEcmid() : null;
+            String ecmId = alfrescoECMService.createFolder(folder.getName(), parentFolderEcmid, user.getUsername());
+            folder.setEcmid(ecmId);
             return folderRepository.save(folder);
         } catch (DataIntegrityViolationException e) {
             throw new PdfAppException("It does not allow two folders with the same name in the same directory", PdfAppException.Type.CONSTRAINT_VIOLATION);
@@ -63,9 +83,12 @@ public class RepositoryServiceBean implements RepositoryService {
     }
 
     @Override
-    public Document uploadDocument(MultipartFile file, Folder parentFolder) {
+    public Document uploadDocument(MultipartFile file, Folder parentFolder, String username) {
         try {
-            String ecmId = "04cc1-b9de1ac41b-97a0c6c08f-a002bc9e44-c47535fa8d-" + Instant.now();
+            User user = userRepository.findByUsername(username);
+            checkIfIsFirstAdminAccessToCreate(user);
+            Folder folder = findFolderByUser_UsernameAndId(username, parentFolder.getId());
+            String ecmId = alfrescoECMService.uploadDocument(file.getOriginalFilename(), username, file, folder.getEcmid());
             Document document = new Document();
             document.setFolder(parentFolder);
             document.setDate(Instant.now());
@@ -76,5 +99,29 @@ public class RepositoryServiceBean implements RepositoryService {
         } catch (DataIntegrityViolationException e) {
             throw new PdfAppException("It doesn't allow two documents with the same name in the same folder", PdfAppException.Type.CONSTRAINT_VIOLATION);
         }
+    }
+
+    @Override
+    @Transactional
+    public Document findDocumentByIdAdnFolderId(Integer docId, Integer folderId) {
+        return documentRepository.findByIdAndFolder_Id(docId, folderId);
+    }
+
+    @Override
+    public Boolean deleteDocument(Document doc) {
+        Boolean result = alfrescoECMService.deleteDocument(doc.getEcmid());
+        documentRepository.delete(doc);
+        return result;
+    }
+
+    private void checkIfIsFirstAdminAccessToCreate(User user) {
+        if(user.getName().equals("admin")){
+            Folder folder = findFolderByUser_UsernameAndParentFolder(user.getName(), null);
+            if(folder.getEcmid() == null){
+                folder.setEcmid(alfrescoECMService.createFolder("ADMIN Repository Root Folder", null, user.getName()));
+                folderRepository.save(folder);
+            }
+        }
+
     }
 }

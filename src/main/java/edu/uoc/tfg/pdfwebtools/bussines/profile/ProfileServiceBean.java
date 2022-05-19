@@ -1,5 +1,6 @@
 package edu.uoc.tfg.pdfwebtools.bussines.profile;
 
+import edu.uoc.tfg.pdfwebtools.bussines.repository.RepositoryService;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Role;
 import edu.uoc.tfg.pdfwebtools.integration.entities.User;
@@ -24,14 +25,14 @@ public class ProfileServiceBean implements ProfileService {
 
     RoleRepository roleRepository;
 
-    FolderRepository folderRepository;
+    RepositoryService repositoryService;
 
     @Autowired
-    public ProfileServiceBean(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository, FolderRepository folderRepository) {
+    public ProfileServiceBean(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository,  RepositoryService repositoryService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.folderRepository = folderRepository;
+        this.repositoryService = repositoryService;
     }
 
     @Override
@@ -46,10 +47,11 @@ public class ProfileServiceBean implements ProfileService {
         user.setIsActive(false);
         userRepository.save(user);
         Folder folder = new Folder();
-        folder.setName("Repository Root Folder");
+        folder.setName(user.getUsername().toUpperCase() + " Repository Root Folder");
         folder.setUser(user);
+        repositoryService.createFolder(user.getUsername(), folder);
+
         user.getFolders().add(folder);
-        folderRepository.save(folder);
         return user;
 
     }

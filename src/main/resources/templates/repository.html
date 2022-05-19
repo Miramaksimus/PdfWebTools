@@ -8,6 +8,19 @@
     <title th:text="#{Home.Title}"></title>
     <link rel="icon" href="#" th:href="@{/img/favicon.ico}" type="image/x-icon"/>
 
+    <script th:inline="javascript">
+
+        $(document).ready(function() {
+            /*<![CDATA[*/
+            var selected_doc_id = /*[[${selected_doc_id}]]*/ 'default';
+            var id = 'repo_doc_' + selected_doc_id
+            var element = document.getElementById(id);
+            if(element != null) element.classList.add("active");
+            /*]]>*/
+        })
+
+    </script>
+
 </head>
 <body>
 <div layout:fragment="breadcrumb">
@@ -177,8 +190,8 @@
                             <!--documents-->
                             <div class=""  th:each="d: ${folder.documents}">
                                 <ul class="nav nav-pills nav-stacked">
-                                    <li th:id="repo_doc_ + ${d.id}">
-                                        <a th:switch="${d.mimeType}" th:href="@{/repository(doc_id=${d.id})}">
+                                    <li class=""  th:id="repo_doc_ + ${d.id}">
+                                        <a th:switch="${d.mimeType}" th:href="@{/repository(folder_id=${folder.id}, doc_id=${d.id})}">
                                             <i th:case="'application/pdf'" class="fa fa-file-pdf-o"></i>
                                             <i th:case="'application/msword'" class="fa fa-file-word-o"></i>
                                             <i th:case="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="fa fa-file-word-o"></i>
@@ -211,19 +224,33 @@
                         <h3 class="panel-title">Available Actions:</h3>
                     </div>
                     <div class="panel-body scrollable-panel-actions">
-                        <div class="box box-solid">
+
+                        <H3 th:if="${selected_doc == null}" >No document selected</H3>
+
+                        <div th:if="${selected_doc != null}" class="box box-solid">
                             <div class="box-body no-padding">
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="#"><i class="fa fa-file-pdf-o"></i> Covert DOCX to PDF</a></li>
-                                    <li><a href="#"><i class="fa fa-file-word-o"></i> Covert PDF to DOCX</a></li>
-                                    <li><a href="#"><i class="fa fa-check-square-o"></i> Scan Signatures</a></li>
-                                    <li><a href="#"><i class="fa fa-qrcode"></i> Scan QRcode</a></li>
-                                    <li><a href="#"><i class="fa fa-download"></i> Download document</a></li>
+                                <ul class="nav nav-pills nav-stacked disabled">
+                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}">
+                                        <a href="#"><i class="fa fa-file-pdf-o"></i> Covert DOCX to PDF</a></li>
+                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
+                                        <a href="#"><i class="fa fa-file-word-o"></i> Covert PDF to DOCX</a>
+                                    </li>
+                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
+                                        <a href="#"><i class="fa fa-check-square-o"></i> Scan Signatures</a>
+                                    </li>
+                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
+                                        <a href="#"><i class="fa fa-qrcode"></i> Scan QRcode</a>
+                                    </li>
+                                    <li th:if="${selected_doc != null}">
+                                        <a th:href="@{/repository/download(id=${selected_doc.id})}"><i class="fa fa-download"></i> Download document</a>
+                                    </li>
+                                    <li th:if="${selected_doc != null}">
+                                        <a th:href="@{/repository/delete(folder_id=${folder.id}, id=${selected_doc.id})}"><i class="fa fa-trash"></i> Delete document</a>
+                                    </li>
                                 </ul>
                             </div>
                             <!-- /.box-body -->
                         </div>
-                      <!--  <button type="button" class="btn btn-default btn-block"><i class="fa fa-file-pdf-o"></i> Covert DOCX to PDF</a></button>-->
                     </div>
                 </div>
 
@@ -238,18 +265,19 @@
                     </div>
                     <div class="panel-body scrollable-panel-info">
 
-                        <dl class="dl-horizontal">
-                            <dt>Title</dt>
-                            <dd>Document 1</dd>
-                            <dt>Type</dt>
-                            <dd>PDF</dd>
-                            <dt>Data</dt>
-                            <dd>11/04/2022</dd>
+                        <H3 th:if="${selected_doc == null}" >No document selected</H3>
 
+                        <dl th:if="${selected_doc != null}"  class="dl-horizontal">
+                            <dt>Title</dt>
+                            <dd th:text="${selected_doc.title}"></dd>
+                            <dt>Type</dt>
+                            <dd th:text="${selected_doc.mimeType}"></dd>
+                            <dt>Data</dt>
+                            <dd th:text="${selected_doc.date}"></dd>
                         </dl>
 
 
-                        <div class="box box-solid">
+                        <div th:if="${selected_doc != null}" class="box box-solid">
                             <!-- /.box-header -->
                             <div class="box-body">
                                 <div class="box-group" id="accordion">
@@ -264,13 +292,15 @@
                                         </div>
                                         <div id="collapseOne" class="panel-collapse collapse in">
                                             <div class="box-body">
-                                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3
-                                                wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum
-                                                eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla
-                                                assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred
-                                                nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
-                                                farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
-                                                labore sustainable VHS.
+
+                                                <h4 th:if="${selected_doc.barcodes.isEmpty()}">Document does not have barcodes or qrcodes</h4>
+
+                                                <dl th:each="code, eterator : ${selected_doc.barcodes}"  class="dl-horizontal">
+                                                    <dt><h5>Barcode №:</h5></dt>
+                                                    <dd th:text="${eterator.index}"></dd>
+                                                    <dt>Barcode text:</dt>
+                                                    <dd th:text="${code.text}"></dd>
+                                                </dl>
                                             </div>
                                         </div>
                                     </div>
@@ -284,13 +314,21 @@
                                         </div>
                                         <div id="collapseThree" class="panel-collapse collapse">
                                             <div class="box-body">
-                                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3
-                                                wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum
-                                                eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla
-                                                assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred
-                                                nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
-                                                farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
-                                                labore sustainable VHS.
+                                                <h4 th:if="${selected_doc.signatures.isEmpty()}">Document does not have signatures</h4>
+                                                <dl th:each="sig, eterator : ${selected_doc.signatures}"  class="dl-horizontal">
+                                                    <dt><h5>Signature №:</h5></dt>
+                                                    <dd th:text="${eterator.index}"></dd>
+                                                    <dt>Signer name:</dt>
+                                                    <dd th:text="${sig.signerName}"></dd>
+                                                    <dt>Signer NIF:</dt>
+                                                    <dd th:text="${sig.signerNif}"></dd>
+                                                    <dt>Is Valid:</dt>
+                                                    <dd th:text="${sig.isValid}"></dd>
+                                                    <dt>Is cover whole document:</dt>
+                                                    <dd th:text="${sig.isCoverWhole}"></dd>
+                                                    <dt>Signature date:</dt>
+                                                    <dd th:text="${sig.sigDate}"></dd>
+                                                </dl>
                                             </div>
                                         </div>
                                     </div>
