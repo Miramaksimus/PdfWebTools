@@ -113,7 +113,7 @@ CREATE TABLE signature (
      is_valid boolean NOT NULL,
      is_cover_whole boolean NOT NULL,
      sig_date TIMESTAMP NOT NULL,
-     metadata varchar(2000) NOT NULL,
+     metadata varchar(5000) NOT NULL,
      document_id bigint NOT NULL,
      PRIMARY KEY (id)
 );

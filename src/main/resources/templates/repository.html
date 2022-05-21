@@ -52,7 +52,7 @@
 </div>
 <div layout:fragment="content">
     <!-- Modal -->
-    <div class="modal fade" id="uploadFolderModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal fade" id="uploadFolderModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelFolderModal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -102,7 +102,7 @@
     </div>
     <!-- /Modal -->
     <!-- Modal -->
-    <div class="modal fade" id="uploadFileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal fade" id="uploadFileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelFileModal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -205,6 +205,8 @@
                                             <i th:case="'text/plain'" class="fa fa-file-code-o"></i>
                                             <i th:case="*" class="fa fa-file-o"></i>
                                             <span th:text="${d.title}"></span>
+                                            <i th:if="${!d.barcodes.isEmpty()}" class="fa fa-qrcode pull-right"></i>
+                                            <i th:if="${!d.signatures.isEmpty()}" class="fa fa-pencil-square-o pull-right"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -240,10 +242,10 @@
                                     <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
                                         <a onclick="loadingAction()"  th:href="@{/converter/pdf/to/docx(folder_id=${folder.id}, doc_id=${selected_doc.id})}"><i class="fa fa-file-word-o"></i> Covert PDF to DOCX</a>
                                     </li>
-                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
-                                        <a onclick="loadingAction()" href="#"><i class="fa fa-check-square-o"></i> Scan Signatures</a>
+                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf' and selected_doc.signatures.isEmpty()}">
+                                        <a onclick="loadingAction()" th:href="@{/signature(folder_id=${folder.id}, doc_id=${selected_doc.id})}"><i class="fa fa-check-square-o"></i> Scan Signatures</a>
                                     </li>
-                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
+                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf' and selected_doc.barcodes.isEmpty()}">
                                         <a onclick="loadingAction()" th:href="@{/scanner(folder_id=${folder.id}, doc_id=${selected_doc.id})}"><i class="fa fa-qrcode"></i> Scan QRcode</a>
                                     </li>
                                     <li th:if="${selected_doc != null}">
@@ -301,10 +303,11 @@
                                                 <h4 th:if="${selected_doc.barcodes.isEmpty()}">Document does not have barcodes or qrcodes</h4>
 
                                                 <dl th:each="code, eterator : ${selected_doc.barcodes}"  class="dl-horizontal">
-                                                    <dt><h5>Barcode №:</h5></dt>
-                                                    <dd th:text="${eterator.index}"></dd>
+                                                    <dt>Barcode №:</dt>
+                                                    <dd th:text="${eterator.index}+1"></dd>
                                                     <dt>Barcode text:</dt>
                                                     <dd th:text="${code.text}"></dd>
+                                                    <br/>
                                                 </dl>
                                             </div>
                                         </div>
@@ -321,8 +324,8 @@
                                             <div class="box-body">
                                                 <h4 th:if="${selected_doc.signatures.isEmpty()}">Document does not have signatures</h4>
                                                 <dl th:each="sig, eterator : ${selected_doc.signatures}"  class="dl-horizontal">
-                                                    <dt><h5>Signature №:</h5></dt>
-                                                    <dd th:text="${eterator.index}"></dd>
+                                                    <dt>Signature №:</dt>
+                                                    <dd th:text="${eterator.index}+1"></dd>
                                                     <dt>Signer name:</dt>
                                                     <dd th:text="${sig.signerName}"></dd>
                                                     <dt>Signer NIF:</dt>
@@ -332,7 +335,32 @@
                                                     <dt>Is cover whole document:</dt>
                                                     <dd th:text="${sig.isCoverWhole}"></dd>
                                                     <dt>Signature date:</dt>
-                                                    <dd th:text="${sig.sigDate}"></dd>
+                                                    <dd th:text="${#temporals.format(sig.sigDate, 'dd-MM-yyyy')}"></dd>
+                                                    <dt>Metadata:</dt>
+                                                    <dd>
+                                                        <button type="button" data-toggle="modal" th:data-target="'#sig_'+ ${sig.id}" class="btn btn-default btn-sm"><i class="fa fa-eye"></i>
+                                                        </button>
+                                                    </dd>
+                                                    <br/>
+                                                    <div class="modal fade" th:id="sig_+ ${sig.id}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="box box-solid">
+                                                                        <div class="box-body">
+                                                                            <pre class="prettyprint"><code th:text="${sig.metadata}" class="html">
+                                                                                </code></pre>
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </dl>
                                             </div>
                                         </div>
