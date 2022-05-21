@@ -1,5 +1,6 @@
 package edu.uoc.tfg.pdfwebtools.appconfig;
 
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,8 @@ public class CustomErrorViewResolver implements ErrorViewResolver {
                                          Map<String, Object> model) {
         Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
         Throwable throwable = (Throwable) request.getAttribute("javax.servlet.error.exception");
-        if(throwable instanceof MaxUploadSizeExceededException) return handleMaxSizeException((MaxUploadSizeExceededException)throwable);
+        if(throwable instanceof MaxUploadSizeExceededException ||
+                throwable instanceof SizeLimitExceededException) return handleMaxSizeException();
         String exceptionMessage = getExceptionMessage(throwable, statusCode);
 
         ModelAndView modelv = new ModelAndView("error");
@@ -60,7 +62,7 @@ public class CustomErrorViewResolver implements ErrorViewResolver {
         return messages.toString();
     }
 
-    public ModelAndView handleMaxSizeException(MaxUploadSizeExceededException e) {
+    public ModelAndView handleMaxSizeException() {
 
         ModelAndView modelAndView = new ModelAndView("repository");
         modelAndView.getModelMap().addAttribute("message_error", "File too large! The maximum size allowed is: " + maxFileSize);

@@ -6,6 +6,7 @@ import edu.uoc.tfg.pdfwebtools.bussines.converter.ConverterService;
 import edu.uoc.tfg.pdfwebtools.bussines.profile.ProfileService;
 import edu.uoc.tfg.pdfwebtools.bussines.repository.RepositoryService;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Document;
+import edu.uoc.tfg.pdfwebtools.integration.entities.Folder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class ConverterController {
 
     @GetMapping("/converter/pdf/to/docx")
     public Object convertPdfToDoc(Model model, @RequestParam(value = "folder_id", required = true) String folderId,
-                                  @RequestParam(value = "id", required = true) String docId) {
+                                  @RequestParam(value = "doc_id", required = true) String docId) {
         logger.debug("convertDocToPfd.../converter/doctopdf  docId: {} , folderId {}", docId, folderId);
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();

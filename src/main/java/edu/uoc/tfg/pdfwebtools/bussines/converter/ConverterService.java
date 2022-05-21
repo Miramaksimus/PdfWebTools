@@ -6,5 +6,5 @@ public interface ConverterService {
   
     Document convertDocxToPfd(Document doc) throws Exception;
 
-    Document convertPfdToDocx(Document doc);
+    Document convertPfdToDocx(Document doc) throws Exception;
 }

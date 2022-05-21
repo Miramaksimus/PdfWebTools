@@ -1,23 +1,20 @@
 package edu.uoc.tfg.pdfwebtools.bussines.converter;
 
+import com.spire.pdf.FileFormat;
+import com.spire.pdf.PdfDocument;
 import edu.uoc.tfg.pdfwebtools.appexceptions.PdfAppException;
 import edu.uoc.tfg.pdfwebtools.bussines.alfresco.DocumentECM;
 import edu.uoc.tfg.pdfwebtools.bussines.repository.RepositoryService;
 import edu.uoc.tfg.pdfwebtools.integration.entities.Document;
-import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.FopFactoryBuilder;
-import org.docx4j.Docx4J;
-import org.docx4j.convert.out.FOSettings;
-import org.docx4j.convert.out.fo.renderers.FORendererApacheFOP;
-import org.docx4j.fonts.BestMatchingMapper;
-import org.docx4j.fonts.Mapper;
-import org.docx4j.fonts.PhysicalFonts;
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.apache.poi.xwpf.converter.pdf.PdfConverter;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
 
 @Service
 public class ConverterServiceBean implements ConverterService {
@@ -38,9 +35,14 @@ public class ConverterServiceBean implements ConverterService {
     }
 
     @Override
-    public Document convertPfdToDocx(Document doc) {
-        return null;
+    public Document convertPfdToDocx(Document doc) throws Exception {
+        DocumentECM docx = repositoryService.downloadDocument(doc.getId());
+        DocumentECM pdf = procesPdfToDocx(docx);
+        Document newDoc = repositoryService.uploadDocument(pdf, doc.getFolder(), doc.getFolder().getUser().getUsername());
+        return newDoc;
+
     }
+
 
     private DocumentECM procesDocToPdf(DocumentECM doc) throws Exception {
 
@@ -48,27 +50,37 @@ public class ConverterServiceBean implements ConverterService {
         retDoc.setName(removeExtension(doc.getName()) + ".pdf");
         retDoc.setMimeType("application/pdf");
 
-        PhysicalFonts.setRegex(null);
-        WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(doc.getInputStream());
-        // set up font mapper (optional)
-        //Mapper fontMapper = new IdentityPlusMapper();  // Only for Windows, unless you have Microsoft's fonts installed
-        Mapper fontMapper = new BestMatchingMapper();  // Good for Linux (and OSX?)
-        wordMLPackage.setFontMapper(fontMapper);
-
-        FOSettings foSettings = new FOSettings(wordMLPackage);
-
-        FopFactoryBuilder fopFactoryBuilder = FORendererApacheFOP.getFopFactoryBuilder(foSettings);
-        FopFactory fopFactory = fopFactoryBuilder.build();
-        FOUserAgent foUserAgent = FORendererApacheFOP.getFOUserAgent(foSettings, fopFactory);
-
-        foUserAgent.setTitle(retDoc.getName());
-
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        // Don't care what type of exporter you use
-        Docx4J.toFO(foSettings, os, Docx4J.FLAG_EXPORT_PREFER_XSL);
+
+
+        XWPFDocument document = new XWPFDocument(doc.getInputStream());
+
+        PdfConverter.getInstance().convert(document, os, null);
 
         InputStream is = new ByteArrayInputStream(os.toByteArray());
 
+        retDoc.setContentLength(calculateSizeAndClose(is));
+        retDoc.setInputStream(new ByteArrayInputStream(os.toByteArray()));
+
+        return retDoc;
+    }
+
+    private DocumentECM procesPdfToDocx(DocumentECM doc) throws Exception {
+
+        DocumentECM retDoc = new DocumentECM();
+        retDoc.setName(removeExtension(doc.getName()) + ".docx");
+        retDoc.setMimeType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        //create a PdfDocument object
+        PdfDocument docx = new PdfDocument();
+        //load a sample PDF file
+        docx.loadFromStream(doc.getInputStream());
+        //write to stream
+        docx.saveToStream(os, FileFormat.DOCX);
+        docx.close();
+
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
         retDoc.setContentLength(calculateSizeAndClose(is));
         retDoc.setInputStream(new ByteArrayInputStream(os.toByteArray()));
 
