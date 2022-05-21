@@ -1,6 +1,7 @@
 package edu.uoc.tfg.pdfwebtools.bussines.alfresco;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class DocumentECM {
@@ -8,6 +9,7 @@ public class DocumentECM {
     private String name;
     private InputStream inputStream;
     private String mimeType;
+    private Long contentLength;
 
     public String getName() {
         return name;
@@ -31,5 +33,13 @@ public class DocumentECM {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public Long getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(Long contentLength) {
+        this.contentLength = contentLength;
     }
 }

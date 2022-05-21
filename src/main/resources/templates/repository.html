@@ -19,6 +19,11 @@
             /*]]>*/
         })
 
+        function loadingAction() {
+            var element = document.getElementById('action_overlay');
+            if(element != null) element.classList.remove("hide");
+        }
+
     </script>
 
 </head>
@@ -205,11 +210,10 @@
                                 </ul>
                             </div>
                         </div>
-
-
-
-
                     </div>
+                </div>
+                <div id="action_overlay" class="overlay hide">
+                    <i class="fa fa-refresh fa-spin"></i>
                 </div>
             </div>
             <!-- /.box -->
@@ -231,21 +235,22 @@
                             <div class="box-body no-padding">
                                 <ul class="nav nav-pills nav-stacked disabled">
                                     <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}">
-                                        <a href="#"><i class="fa fa-file-pdf-o"></i> Covert DOCX to PDF</a></li>
-                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
-                                        <a href="#"><i class="fa fa-file-word-o"></i> Covert PDF to DOCX</a>
+                                        <a onclick="loadingAction()" th:href="@{/converter/docx/to/pdf(folder_id=${folder.id}, doc_id=${selected_doc.id})}"><i class="fa fa-file-pdf-o"></i> Covert DOCX to PDF</a>
                                     </li>
                                     <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
-                                        <a href="#"><i class="fa fa-check-square-o"></i> Scan Signatures</a>
+                                        <a onclick="loadingAction()"  th:href="@{/converter/pdf/to/docx(folder_id=${folder.id}, doc_id=${selected_doc.id})}"><i class="fa fa-file-word-o"></i> Covert PDF to DOCX</a>
                                     </li>
                                     <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
-                                        <a href="#"><i class="fa fa-qrcode"></i> Scan QRcode</a>
+                                        <a onclick="loadingAction()" href="#"><i class="fa fa-check-square-o"></i> Scan Signatures</a>
+                                    </li>
+                                    <li th:if="${selected_doc != null and selected_doc.mimeType  == 'application/pdf'}">
+                                        <a onclick="loadingAction()" th:href="@{/scanner(folder_id=${folder.id}, doc_id=${selected_doc.id})}"><i class="fa fa-qrcode"></i> Scan QRcode</a>
                                     </li>
                                     <li th:if="${selected_doc != null}">
                                         <a th:href="@{/repository/download(id=${selected_doc.id})}"><i class="fa fa-download"></i> Download document</a>
                                     </li>
                                     <li th:if="${selected_doc != null}">
-                                        <a th:href="@{/repository/delete(folder_id=${folder.id}, id=${selected_doc.id})}"><i class="fa fa-trash"></i> Delete document</a>
+                                        <a onclick="loadingAction()" th:href="@{/repository/delete(folder_id=${folder.id}, id=${selected_doc.id})}"><i class="fa fa-trash"></i> Delete document</a>
                                     </li>
                                 </ul>
                             </div>

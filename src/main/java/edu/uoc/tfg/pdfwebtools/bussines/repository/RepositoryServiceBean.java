@@ -45,9 +45,7 @@ public class RepositoryServiceBean implements RepositoryService {
     @Transactional
     public DocumentECM downloadDocument(Integer id) {
         Document doc = documentRepository.getById(id);
-        DocumentECM ret = new  DocumentECM();
-        InputStream is = alfrescoECMService.downloadDocument(doc.getEcmid());
-        ret.setInputStream(is);
+        DocumentECM ret = alfrescoECMService.downloadDocument(doc.getEcmid());
         ret.setName(doc.getTitle());
         ret.setMimeType(doc.getMimeType());
         return ret;
@@ -98,6 +96,27 @@ public class RepositoryServiceBean implements RepositoryService {
             return documentRepository.save(document);
         } catch (DataIntegrityViolationException e) {
             throw new PdfAppException("It doesn't allow two documents with the same name in the same folder", PdfAppException.Type.CONSTRAINT_VIOLATION);
+        }
+    }
+
+    @Override
+    public Document uploadDocument(DocumentECM doc, Folder parentFolder, String username) {
+        try {
+            User user = userRepository.findByUsername(username);
+            checkIfIsFirstAdminAccessToCreate(user);
+            Folder folder = findFolderByUser_UsernameAndId(username, parentFolder.getId());
+            String ecmId = alfrescoECMService.uploadDocument(doc, username, folder.getEcmid());
+            Document document = new Document();
+            document.setFolder(parentFolder);
+            document.setDate(Instant.now());
+            document.setTitle(doc.getName());
+            document.setMimeType(doc.getMimeType());
+            document.setEcmid(ecmId);
+            return documentRepository.save(document);
+        } catch (DataIntegrityViolationException e) {
+            throw new PdfAppException("It doesn't allow two documents with the same name in the same folder", PdfAppException.Type.CONSTRAINT_VIOLATION);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

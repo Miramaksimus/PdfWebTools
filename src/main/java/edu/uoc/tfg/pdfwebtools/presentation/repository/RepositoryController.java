@@ -24,7 +24,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -46,9 +48,9 @@ public class RepositoryController {
 
     @GetMapping("/repository")
     public ModelAndView consultAndListDocuments(Model model, @RequestParam(value = "message_error", required = false) String message_error,
-                                   @RequestParam(value = "message_info", required = false) String message_info,
-                                   @RequestParam(value = "folder_id", required = false) String folderId,
-                                   @RequestParam(value = "doc_id", required = false) String docId) {
+                                                @RequestParam(value = "message_info", required = false) String message_info,
+                                                @RequestParam(value = "folder_id", required = false) String folderId,
+                                                @RequestParam(value = "doc_id", required = false) String docId) {
         logger.debug("repository...: /");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         model.addAttribute("username", username);
@@ -65,17 +67,17 @@ public class RepositoryController {
             if (folder != null) {
 
                 folder.setFolders(folder.getFolders().stream()
-                        .sorted((p1, p2)->p1.getName().compareToIgnoreCase(p2.getName()))
+                        .sorted((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()))
                         .collect(Collectors.toCollection(LinkedHashSet::new)
                         ));
 
                 folder.setDocuments(folder.getDocuments().stream()
-                        .sorted((p1, p2)->p1.getTitle().compareToIgnoreCase(p2.getTitle()))
+                        .sorted((p1, p2) -> p1.getTitle().compareToIgnoreCase(p2.getTitle()))
                         .collect(Collectors.toCollection(LinkedHashSet::new)
                         ));
                 model.addAttribute("folder", folder);
 
-                if (docId != null ) {
+                if (docId != null) {
                     Document doc = repositoryService.findDocumentByIdAdnFolderId(Integer.valueOf(docId), folder.getId());
                     model.addAttribute("selected_doc", doc);
                     model.addAttribute("selected_doc_id", doc.getId());
@@ -101,7 +103,7 @@ public class RepositoryController {
 
     @PostMapping("/repository/upload")
     public Object uploadDocument(Model model, @ModelAttribute UplodedDocument newDoc,
-                         @RequestParam("file") MultipartFile file) {
+                                 @RequestParam("file") MultipartFile file) {
         logger.debug("upload.../repository/upload");
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -127,16 +129,17 @@ public class RepositoryController {
 
 
     @GetMapping("/repository/delete")
-    public Object deleteDocument(Model model,@RequestParam(value = "folder_id", required = true) String folderId,
+    public Object deleteDocument(Model model, @RequestParam(value = "folder_id", required = true) String folderId,
                                  @RequestParam(value = "id", required = true) String docId) {
         logger.debug("deleteDocument.../repository/delete  docId: " + docId);
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             Document doc = repositoryService.findDocumentByIdAdnFolderId(Integer.valueOf(docId), Integer.valueOf(folderId));
-            if(doc != null && doc.getFolder().getUser().getUsername().equals(username)){
-                Boolean isDeleted  =  repositoryService.deleteDocument(doc);
+            if (doc != null && doc.getFolder().getUser().getUsername().equals(username)) {
+                model.addAttribute("folder_id", folderId);
+                Boolean isDeleted = repositoryService.deleteDocument(doc);
             } else {
-                throw  new PdfAppException("Document not exist or user not have permissions", PdfAppException.Type.NOT_FOUND);
+                throw new PdfAppException("Document not exist or user not have permissions", PdfAppException.Type.NOT_FOUND);
             }
 
         } catch (PdfAppException e) {
@@ -179,11 +182,12 @@ public class RepositoryController {
         return new ModelAndView("redirect:/repository", model.asMap());
     }
 
-/*    private methods*/
+    /*    private methods*/
 
     private void validateFile(MultipartFile file) {
         List<String> mimes = Arrays.asList("application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain", "image/png", "image/jpeg");
-        if(! mimes.contains(file.getContentType())) throw new PdfAppException("This file type is not supported", PdfAppException.Type.CONSTRAINT_VIOLATION);
+        if (!mimes.contains(file.getContentType()))
+            throw new PdfAppException("This file type is not supported", PdfAppException.Type.CONSTRAINT_VIOLATION);
     }
 
 
