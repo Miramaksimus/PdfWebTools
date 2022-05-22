@@ -11,11 +11,11 @@
     </parent>
 
     <groupId>uoc.edu.tfg</groupId>
-    <artifactId>PdfWebTools</artifactId>
+    <artifactId>pdf-web-tools</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>PdfWebToolsAPP</name>
+    <name>PdfWebTools</name>
     <description>Pdf Tools WEB-APP</description>
 
     <properties>
@@ -195,7 +195,7 @@
     </dependencies>
 
     <build>
-        <finalName>PdfWebToolsAPP</finalName>
+        <finalName>pdf-web-tools</finalName>
         <plugins>
             <plugin>
                 <configuration>

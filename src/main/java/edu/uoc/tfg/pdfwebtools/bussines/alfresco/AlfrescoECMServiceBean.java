@@ -130,12 +130,14 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
 
     @Override
     public String createFolder(String folderName, String parentIdEcmid, String userName) {
-        logger.debug("uploadDocument  folderName: {}, userName: {}, parentId: {}", folderName, userName, parentIdEcmid);
+        logger.debug("createFolder  folderName: {}, userName: {}, parentId: {}", folderName, userName, parentIdEcmid);
         Map<String, Object> props = new HashMap<>();
         props.put(PropertyIds.NAME, folderName);
         props.put(PropertyIds.CREATED_BY, userName);
         props.put(PropertyIds.OBJECT_TYPE_ID, "cmis:folder");
-        Folder root = (Folder) getCmisObject(parentIdEcmid  != null ? parentIdEcmid : ROOT_FOLDER);
+        String object = parentIdEcmid  != null ? parentIdEcmid : ROOT_FOLDER;
+        logger.debug("createFolder  parentIdEcmid: {}", object);
+        Folder root = (Folder) getCmisObject(object);
         Folder folder = root.createFolder(props);
         if (folder == null) throw new PdfAppException("Fault create folder in Alfresco repository", PdfAppException.Type.UNEXPECTED);
         return folder.getId();
@@ -151,7 +153,7 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
 
     @Override
     public DocumentECM downloadDocument(String ecmId) {
-
+        logger.debug("deleteDocument  ecmId: {}", ecmId);
         Session session = getSession();
         try {
             Document r = session.getLatestDocumentVersion(new ObjectIdImpl(ecmId),
@@ -177,6 +179,8 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
 
     private static CmisObject getCmisObject(String ecmId) throws
             CmisConnectionException {
+        logger.debug("getCmisObject  ecmId: {}", ecmId);
+
 
         Session session = getSession();
         try {
@@ -211,6 +215,7 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
 
 
     private static Session getSession() throws CmisConnectionException {
+        logger.debug("getSession................");
         if (session == null) {
             synchronized (AlfrescoECMServiceBean.class) {
                 try {
@@ -225,7 +230,7 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
     }
 
     private static Session createSession() throws CmisConnectionException {
-        logger.trace("+createSession ...");
+        logger.debug("createSession .........");
         SessionFactory sessionFactory = SessionFactoryImpl.newInstance();
         Map<String, String> params = new HashMap<>();
         params.put(SessionParameter.USER, "admin");
@@ -235,6 +240,7 @@ public class AlfrescoECMServiceBean implements AlfrescoECMService {
         params.put(SessionParameter.BROWSER_URL, ALFRESCO_BROWSER_URL);
         params.put(SessionParameter.BINDING_TYPE, BindingType.BROWSER.value());
 
+        logger.debug("Parametros de Sesion: " + String.valueOf(params));
         List<Repository> repos = sessionFactory.getRepositories(params);
         if (repos.isEmpty()) {
             throw new CmisConnectionException("There is no repository - " +

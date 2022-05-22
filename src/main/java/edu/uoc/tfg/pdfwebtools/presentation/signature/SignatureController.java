@@ -49,7 +49,7 @@ public class SignatureController {
             if (doc != null && doc.getFolder().getUser().getUsername().equals(username)) {
                 model.addAttribute("folder_id", folderId);
                 validatePdfFormat(doc);
-                Document scannedDoc = signatureService.scantSignaturesFromPfd(doc);
+                Document scannedDoc = signatureService.scanSignaturesFromPfd(doc);
                 if (scannedDoc != null) model.addAttribute("doc_id", scannedDoc.getId());
             } else {
                 throw new PdfAppException("Document not exist or user not have permissions", PdfAppException.Type.NOT_FOUND);

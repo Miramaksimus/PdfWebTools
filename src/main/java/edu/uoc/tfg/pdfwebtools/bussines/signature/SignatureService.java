@@ -6,5 +6,5 @@ import java.io.IOException;
 
 public interface SignatureService {
 
-    Document scantSignaturesFromPfd(Document doc) throws IOException, SignatureCheckerException;
+    Document scanSignaturesFromPfd(Document doc) throws IOException, SignatureCheckerException;
 }
