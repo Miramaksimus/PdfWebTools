@@ -74,7 +74,7 @@ public class SignatureServiceBean implements SignatureService {
     }
 
     @Override
-    public Document scantSignaturesFromPfd(Document doc) throws IOException {
+    public Document scanSignaturesFromPfd(Document doc) throws IOException {
         DocumentECM repoDoc = repositoryService.downloadDocument(doc.getId());
         Set<Signature> signatures;
         try {
